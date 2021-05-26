@@ -124,8 +124,8 @@ def index(request):
     if request.method == 'GET':
         countries=Country.objects.all().order_by("rank")
         editado=LastModified.objects.last()
-        # initialpopulate()
-        update()
+        #initialpopulate()
+        #update()
         return render(request, 'stats/index.html', {'countries': countries, 'lastmodified': editado})
             
 def country_view(request, country_name):
@@ -157,7 +157,6 @@ def update():
     tempo = LastModified.objects.last()
     if str(tempo.last_modified_data) != str(date.today()):
         fullstats, vacstats = getstats()
-        print(fullstats)
         newModified = LastModified()
         for i in fullstats:
             if i['Population']!='0':
