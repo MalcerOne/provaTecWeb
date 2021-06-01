@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect
+from requests.api import request
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from django.http import Http404
@@ -8,6 +9,7 @@ from .models import Country, LastModified
 from .serializers import CountrySerializer
 from deep_translator import GoogleTranslator
 from datetime import date
+import urllib.request
 
 c=0
 statsUsa = []
@@ -68,6 +70,32 @@ def getflag(country, style='flat', size='16'):
     url=f'https://www.countryflags.io/{country_code}/{style}/{size}.png'
     return url
 
+################# AVALIAÇÃO FINAL ############################
+
+def getSelo():
+    # Questão 1
+    username = "rafaelsm9"
+    urlcodeAccess = f"http://54.88.109.168/{username}/token"
+    
+    responseAccess = requests.request("GET", urlcodeAccess)
+
+    accessToken = responseAccess.json()['token']
+    print(f"Token de acesso, questão 1: {accessToken}")
+
+    # Questão 2
+    urlcodeCreateImage = f"http://54.88.109.168/{username}/image"
+    tokenRequired = {'token': f"{str(accessToken)}"}
+
+    responseCreate = requests.request("POST", urlcodeCreateImage, json=tokenRequired)
+
+    tokenImage = responseCreate.json()['image_uri']
+    print(f"Token para criar a imagem, questão 2: {tokenImage}")
+
+    # Questão 3
+    return f"http://54.88.109.168{tokenImage}"
+
+##############################################################
+
 def initialpopulate():
     fullstats, vacstats = getstats()
     new_modified=LastModified().save()
@@ -126,7 +154,8 @@ def index(request):
         editado=LastModified.objects.last()
         #initialpopulate()
         #update()
-        return render(request, 'stats/index.html', {'countries': countries, 'lastmodified': editado})
+        selo = getSelo()
+        return render(request, 'stats/index.html', {'countries': countries, 'lastmodified': editado, 'selo': selo,})
             
 def country_view(request, country_name):
     country=Country.objects.get(name=country_name)
